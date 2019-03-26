@@ -1,0 +1,116 @@
+{% extends "video/base.html" %}
+{% block title %}movie gallery{% endblock title %}
+{% block extrahead %}
+{% if movie is not None %}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@" />
+<meta property="og:url" content="https://{{ domain }}/video/video/?id={{ movie.movieid }}" />
+<meta property="og:title" content="{{ movie.title }}" />
+<meta property="og:description" content="{{ movie.title }}" />
+<meta property="og:image" content="https://{{ domain }}/media/storage/movie/{{ movie.movieid }}.jpg" />
+{% endif %}
+{% endblock %}
+
+{% block content %}
+  
+  {% if movie is not None%}
+  
+  <div class="container-fluid">
+    <div class="row">
+      {% if movie.filetype is None or movie.filetype == 'unknown' or movie.filetype == 'gif' %}
+  	  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+      <div class="embed-responsive embed-responsive-16by9">
+    	  <video
+          class="embed-responsive-item" id="video" controls preload="none"
+          autoplay="none"
+        >
+        </video>
+      </div>
+      <script>
+        var video = document.getElementById('video');
+        if(Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource('{{ MEDIA_URL }}storage/movie/ts/{{ mid }}.m3u8');
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                video.play();
+                video.volume = video.volume - 0.5;
+            });
+        }
+        var title = document.getElementById('title');
+      </script>
+      {% else %}
+      <div class="embed-responsive-item">
+        <img class="embed-responsive-item" src="{{ MEDIA_URL }}storage/movie/{{ movie.movieid }}.jpg">
+      </div>
+      {% endif %}
+      <script>
+        title.text = '{{ movie.title }}';
+        document.title = '{{ movie.title }}';
+      </script>
+    </div>
+  </div>
+  
+  {% endif %}
+  
+  
+  
+  
+    <p>
+      {{ msg }} i {{ movie.playcount }} date{{ movie.posted_at }} 
+      <a href="../upload/" class="btn btn-outline">upload</a>
+      <a href="https://twitter.com/share?url=https://{{ domain }}/video/video/?id={{ movie.movieid }}&text={{ movie.title }}" target="_blank" rel="nofollow" class="btn btn-outline" id="twitter_share">共有</a>
+    </p>
+    
+    
+    <div class="container">
+      <div class="row">
+        {% for row in ls %}
+        {#% if row.filetype is None or row.filetype == 'unknown' %#}
+        <a href="?id={{ row.movieid }}">
+          <div class="col-xs-16 col-sm-8 col-md-8 col-lg-6 col-xl-4">
+            <div class="card" style="width: 20rem;">
+              <img class="card-img-top" src="{{ MEDIA_URL }}storage/movie/{{ row.movieid }}.jpg" alt="Card image cap">
+              <div class="card-body">
+                <h4 class="card-title"><font color="blue">{{ row.title }}</font></h4>
+                <p class="card-text"><font color="#000000">{{ row.posted_at }}</font></p>
+                <!--<a href="?id={{ row.movieid }}" class="btn btn-primary">play</a>-->
+              </div>
+            </div>
+          </div>
+        </a>
+        {#% endif %#}
+        {% endfor %}
+      </div>
+    </div>
+    
+    
+    <div class="table-responsive">
+          <table border="1" class="table table-striped">
+            <thead>
+              <tr>
+                <th>created_at</th>
+                <th>name</th>
+                <th>user</th>
+                <th>thumbnail</th>
+		<th>count</th>
+                <th>remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in ls %}
+                  <tr>
+                    <td>{{ row.posted_at }}</td>
+		    <td><a href="?id={{ row.movieid }}">{{ row.title }}</a></td>
+                    <td>{{ row.userid | truncatechars:"16" }}</td>
+                    <td><img class="img-responsive img-rounded" src="{{ MEDIA_URL }}/storage/movie/{{ row.movieid }}.jpg" alt="" width="64" height="48"></td>
+		    <td>{{ row.playcount }}</td>
+                    <td><a href="?id={{ row.movieid }}&remove">remove</a></td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+{% endblock %}

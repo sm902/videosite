@@ -1,0 +1,16 @@
+{% extends "video/base.html" %}
+{% block title %}{% endblock title %}
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+    <h1>ファイルをアップロード</h1>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">アップロード</button>
+    </form>
+    <p>{{ msg }}</p>
+    <p></p>
+    <p><a href="../video/">動画一覧</a></p>
+{% endblock %}
